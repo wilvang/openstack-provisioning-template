@@ -1,5 +1,17 @@
-# Configure remote backend for storing Terraform state in GitLab 
+# ============================================
+# PROVIDER CONFIGURATION
+# ============================================
+# Configures the OpenStack provider to interact with OpenStack's API
+# and manage resources, as well as sets up the backend for Terraform state
+# storage and locking in GitLab.
+
+# --------------------------------------------
+# Backend Configuration (GitLab)
+# --------------------------------------------
+# This backend stores Terraform state and lock information in a GitLab project.
 terraform {
+  required_version = ">= 0.14.0"
+
   backend "http" {
     address        = "https://gitlab.stud.idi.ntnu.no/api/v4/projects/30968/terraform/state/networking"
     lock_address   = "https://gitlab.stud.idi.ntnu.no/api/v4/projects/30968/terraform/state/networking/lock"
@@ -17,5 +29,9 @@ terraform {
   }
 }
 
-# Configure the OpenStack Provider
+# --------------------------------------------
+# OpenStack Provider Configuration
+# --------------------------------------------
+# Configures OpenStack provider credentials and endpoint.
+# Use environment variables for secure authentication.
 provider "openstack" {}
