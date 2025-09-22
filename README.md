@@ -19,9 +19,10 @@ Once the values are specified, rename example.tfvars to terraform.tfvars using t
 mv example.tfvars terraform.tfvars
 ```
 
-### Step 3: Use `ln` to Link example.tfvars to Your Modules
-Once you have the **example.tfvars** file prepared, you can create a symbolic link in each module directory pointing to the central **example.tfvars** file. To link the file to a specific module, navigate to the module's directory and run the following command:
+### Step 3: Use `ln` to Link terraform.tfvars and variables.tf to Your Modules
+Once you have the **terraform.tfvars** file prepared, you can create a symbolic link in each module directory pointing to the central file. This si also done for the **variables.tf** file. To link the files to a specific module, navigate to the module's directory and run the following command:
 
 ```bash
-ln -s ../../example.tfvars ./example.tfvars
+ln -s ../../terraform.tfvars ./terraform.tfvars
+ln -s ../../variables.tf ./variables.tf
 ```
