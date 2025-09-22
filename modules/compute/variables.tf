@@ -76,11 +76,13 @@ variable "vm_setup" {
 variable "sg_rule" {
   description = "Configuration for a security group rule"
   type = object({
+    direction        = string
     ethertype        = string
     protocol         = string
     remote_ip_prefix = string
   })
   default = {
+    direction = "ingress"
     ethertype = "IPv4"
     protocol = "tcp"
     remote_ip_prefix = "0.0.0.0/0"

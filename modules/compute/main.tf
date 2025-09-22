@@ -97,7 +97,8 @@ resource "openstack_networking_secgroup_rule_v2" "server_specific_rule" {
   remote_ip_prefix = var.sg_rule.remote_ip_prefix
 
   # Conditional logic to allow different ports based on the VM type
-  port_range = each.value.type == "web" ? var.web_port : var.db_port
+  port_range_min = each.value.type == "web" ? var.web_port : var.db_port
+  port_range_max = each.value.type == "web" ? var.web_port : var.db_port
 }
 
 # --------------------------------------------
@@ -114,5 +115,6 @@ resource "openstack_networking_secgroup_rule_v2" "ssh_connect_rule" {
   ethertype = var.sg_rule.ethertype
   protocol  = var.sg_rule.protocol
   remote_ip_prefix = var.sg_rule.remote_ip_prefix
-  port_range = var.ssh_port
+  port_range_min = var.ssh_port
+  port_range_max = var.ssh_port
 }
