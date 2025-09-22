@@ -35,3 +35,14 @@ terraform {
 # Configures OpenStack provider credentials and endpoint.
 # Use environment variables for secure authentication.
 provider "openstack" {}
+
+# --------------------------------------------
+# Remote State Data Source (Network Module)
+# --------------------------------------------
+# Retrieves outputs from the "network-backend" state stored in GitLab to use in this module.
+data "terraform_remote_state" "network" {
+  backend = "http"
+  config = {
+    address  = "https://gitlab.stud.idi.ntnu.no/api/v4/projects/30968/terraform/state/networking"
+  }
+}
