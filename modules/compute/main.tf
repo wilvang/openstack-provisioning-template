@@ -28,13 +28,13 @@ resource "openstack_compute_instance_v2" "vm_instance" {
   for_each = { for vm in var.vm_setup : vm.name => vm }
 
   name            = each.value.name
-  image_id        = data.openstack_images_image_v2.instance_image.id
-  flavor_id       = data.openstack_compute_flavor_v2.instance_flavor.id
-  key_pair        = data.openstack_compute_keypair_v2.key_pair.name
+  image_name      = var.image_name
+  flavor_name     = var.flavor_name
+  key_pair        = var.keypair_name
   security_groups = [openstack_networking_secgroup_v2.vm_secgroup[each.key].name]
 
   network {
-    name = data.terraform_remote_state.network.outputs.network_name 
+    name = var.network
   }
 }
 
@@ -54,14 +54,11 @@ resource "openstack_networking_floatingip_v2" "float_ip" {
 # --------------------------------------------
 # Floating IP Association Resource
 # --------------------------------------------
-# This resource associates the floating IPs with the 
-# corresponding compute instances, allowing public 
-# access to the VMs.
-resource "openstack_compute_floatingip_associate_v2" "fip_assoc" {
+resource "openstack_networking_floatingip_associate_v2" "fip_assoc" {
   for_each = openstack_networking_floatingip_v2.float_ip
 
   floating_ip = each.value.address
-  instance_id = openstack_compute_instance_v2.vm_instance[each.key].id
+  port_id     = data.openstack_networking_port_v2.instance_port[each.key].id
 }
 
 # --------------------------------------------
