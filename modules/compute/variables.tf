@@ -15,17 +15,19 @@
 variable "image_name" {
   description = "Name of the OpenStack image to use for the VM"
   type        = string
+  default     = "Debian 13 (trixie) stable amd64"
 }
 
 # --------------------------------------------
-# Flavor ID Variable
+# Flavor Name Variable
 # --------------------------------------------
-# The ID of the OpenStack flavor to use for creating the virtual machines.
+# The name of the OpenStack flavor to use for creating the virtual machines.
 # A flavor defines the compute, memory, and storage capacity for the VM.
-# You can specify a custom flavor ID or use a predefined one.
-variable "flavor_id" {
-  description = "ID of the OpenStack flavor to use"
+# You can specify a custom flavor name or use a predefined one.
+variable "flavor_name" {
+  description = "Name of the OpenStack flavor to use"
   type        = string
+  default     = "gx3.2c2r"
 }
 
 # --------------------------------------------
@@ -121,3 +123,15 @@ variable "ssh_port" {
     type = number
     default = 22
 }
+
+# --------------------------------------------
+# Network Configuration
+# --------------------------------------------
+# This variable defines the network to which the VM instance will be connected.
+# It's a string that should match the name of the network in OpenStack.
+# This is an essential field for ensuring the VM has proper connectivity.
+variable "network" {
+  description = "Name of network to associate with the VM instance"
+  type        = string
+}
+
