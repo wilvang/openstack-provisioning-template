@@ -41,13 +41,16 @@ Before getting started, you need to install the required tools.
   Open your terminal and run:
 
 ```bash
-brew install opentofu openstack
+brew install opentofu
+pipx install python-openstackclient
 ```
+
 - **For Ubuntu/Linux:**
   Run the following command in your terminal:
 
 ```bash
-sudo apt install opentofu openstack
+sudo apt install opentofu
+pipx install python-openstackclient
 ```
 
 ### Step 2: Clone the Repository
