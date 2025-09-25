@@ -21,10 +21,14 @@ variable "network_name" {
 # --------------------------------------------
 # A list of CIDR blocks to be used for creating subnets within the OpenStack network.
 # The default includes three subnets with a /26 mask.
-variable "subnet_cidr_blocks" {
-  description = "List of CIDR blocks for the subnets."
-  type        = list(string)
-  default     = ["192.168.50.0/26", "192.168.50.64/26", "192.168.50.128/26"]
+variable "subnet_layout" {
+  description = "CIDR blocks for the different subnets."
+  type        = map(string)
+  default     = {
+    web = "192.168.80.0/26", 
+    app = "192.168.80.64/26",
+    db =  "192.168.80.128/26"
+  }
 }
 
 # --------------------------------------------

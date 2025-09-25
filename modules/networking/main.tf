@@ -29,10 +29,11 @@ resource "openstack_networking_network_v2" "network" {
 # --------------------------------------------
 # Define subnets to be created within the network.
 resource "openstack_networking_subnet_v2" "subnet" {
-  count           = length(var.subnet_cidr_blocks)
-  name            = "subnet_${count.index + 1}"
+  for_each = var.subnet_layout
+  
+  name            = "${var.network_name}_${each.key}_subnet"
   network_id      = openstack_networking_network_v2.network.id
-  cidr            = var.subnet_cidr_blocks[count.index]
+  cidr            = each.value
   dns_nameservers = var.dns_nameservers
 }
 
@@ -50,7 +51,8 @@ resource "openstack_networking_router_v2" "router" {
 # --------------------------------------------
 # Attach each subnet to the router's interface dynamically.
 resource "openstack_networking_router_interface_v2" "router_interface" {
-  count     = length(var.subnet_cidr_blocks)
+  for_each = openstack_networking_subnet_v2.subnet
+
   router_id = openstack_networking_router_v2.router.id
-  subnet_id = openstack_networking_subnet_v2.subnet[count.index].id
+  subnet_id = each.value.id
 }
