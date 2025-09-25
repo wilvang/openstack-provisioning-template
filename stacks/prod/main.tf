@@ -58,6 +58,13 @@ module "container" {
   project    = var.project    
 }
 
+# --------------------------------------------
+# PERSISTENT STORAGE MODULE
+# --------------------------------------------
+# This module provisions persistent block storage volumes using OpenStack Cinder.
+# It dynamically creates volumes based on the VM instances provided by the compute module.
+# Each volume is attached to its corresponding VM to provide durable storage that
+# persists independently of the VM lifecycle.
 module "volume" {
   source = "../../modules/persistent-storage"
   depends_on = [ module.vm_instance ]
