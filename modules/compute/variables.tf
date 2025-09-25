@@ -9,9 +9,8 @@
 # --------------------------------------------
 # Image Name Variable
 # --------------------------------------------
-# The name of the OpenStack image to be used for creating virtual machines.
-# You can provide the exact image name you want, which typically refers 
-# to the base operating system or template for the VM.
+# The OpenStack image name used for creating virtual machines.
+# Specifies the base OS or template for the VM.
 variable "image_name" {
   description = "Name of the OpenStack image to use for the VM"
   type        = string
@@ -21,9 +20,8 @@ variable "image_name" {
 # --------------------------------------------
 # Flavor Name Variable
 # --------------------------------------------
-# The name of the OpenStack flavor to use for creating the virtual machines.
-# A flavor defines the compute, memory, and storage capacity for the VM.
-# You can specify a custom flavor name or use a predefined one.
+# The OpenStack flavor name used for VM creation.
+# Defines compute, memory, and storage capacity.
 variable "flavor_name" {
   description = "Name of the OpenStack flavor to use"
   type        = string
@@ -41,40 +39,10 @@ variable "keypair_name" {
 }
 
 # --------------------------------------------
-# External Network Name Variable
-# --------------------------------------------
-# The name of the external network for allocating floating IPs.
-# The external network is usually the public network or the one connected
-# to the outside world for public IPs.
-variable "external_network_name" {
-  description = "Name of the external network for floating IPs"
-  type        = string
-}
-
-# --------------------------------------------
-# VM Setup Variable
-# --------------------------------------------
-# A list of VM setup specifications. Each entry defines the name and type
-# of the VM to be created. The `type` can be used to define roles, such as 
-# "web" or "db", to apply specific configurations (like ports) based on the VM type.
-variable "vm_setup" {
-  description = "A list of VM setup specifications."
-  type = list(object({
-    name  = string
-    type  = string
-  }))
-  default = [
-    { name = "web-server", type = "web" },
-    { name = "db-server", type = "db" }
-  ]
-}
-
-# --------------------------------------------
 # Security Group Rule Configuration
 # --------------------------------------------
-# This object defines the configuration for a security group rule.
-# It includes the ethertype (IPv4/IPv6), the protocol (e.g., tcp, udp),
-# and the remote IP prefix (for example, `0.0.0.0/0` allows access from anywhere).
+# Defines the properties of a security group rule, including direction,
+# protocol, ethertype, and remote IP prefix (e.g., '0.0.0.0/0' for any).
 variable "sg_rule" {
   description = "Configuration for a security group rule"
   type = object({
@@ -125,13 +93,58 @@ variable "ssh_port" {
 }
 
 # --------------------------------------------
+# VM Setup Variable
+# --------------------------------------------
+# Map of VM roles to instance names.
+variable "vm_setup" {
+  type        = map(string)
+  description = "Map of VM roles to instance names for the compute instances."
+  default = {
+    web = "web-server-1"
+    db  = "db-server-1"
+  }
+}
+
+# --------------------------------------------
+# User Data Template Variable
+# --------------------------------------------
+# Map of VM roles to user data template file paths for instance initialization.
+variable "template" {
+  type        = map(string)
+  description = "Map of VM roles to user data template file paths for initializing the compute instances."
+  default = {
+    web = "scripts/web-template.yml"
+    db  = "scripts/db-template.yml"
+  }
+}
+
+# --------------------------------------------
+# Subnet IDs Variable
+# --------------------------------------------
+# Map of VM roles to subnet IDs where the instances will be deployed.
+variable "subnet_ids" {
+  type        = map(string)
+  description = "Map of VM roles to subnet IDs where the compute instances will be deployed."
+}
+
+# --------------------------------------------
+# External Network Name Variable
+# --------------------------------------------
+# The name of the external network for allocating floating IPs.
+# The external network is usually the public network or the one connected
+# to the outside world for public IPs.
+variable "external_network_name" {
+  description = "Name of the external network for floating IPs"
+  type        = string
+}
+
+# --------------------------------------------
 # Network Configuration
 # --------------------------------------------
 # This variable defines the network to which the VM instance will be connected.
 # It's a string that should match the name of the network in OpenStack.
 # This is an essential field for ensuring the VM has proper connectivity.
-variable "network" {
-  description = "Name of network to associate with the VM instance"
+variable "network_id" {
+  description = "ID of network to associate with the VM instance"
   type        = string
 }
-
