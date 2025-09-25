@@ -39,8 +39,8 @@ variable "subnet_id" {
 # Load balancing algorithm to distribute traffic across pool members.
 # Common methods include ROUND_ROBIN, LEAST_CONNECTIONS, etc.
 variable "scheduling" {
-    type = string
-    default = "ROUND_ROBIN"
+  type    = string
+  default = "ROUND_ROBIN"
 }
 
 # --------------------------------------------

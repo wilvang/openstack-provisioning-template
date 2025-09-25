@@ -24,10 +24,10 @@ variable "network_name" {
 variable "subnet_layout" {
   description = "CIDR blocks for the different subnets."
   type        = map(string)
-  default     = {
-    web = "192.168.80.0/26", 
+  default = {
+    web = "192.168.80.0/26",
     app = "192.168.80.64/26",
-    db =  "192.168.80.128/26"
+    db  = "192.168.80.128/26"
   }
 }
 

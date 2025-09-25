@@ -42,9 +42,9 @@ variable "sg_rule" {
     remote_ip_prefix = string
   })
   default = {
-    direction = "ingress"
-    ethertype = "IPv4"
-    protocol = "tcp"
+    direction        = "ingress"
+    ethertype        = "IPv4"
+    protocol         = "tcp"
     remote_ip_prefix = "0.0.0.0/0"
   }
 }
@@ -55,9 +55,9 @@ variable "sg_rule" {
 # Defines the port to be opened for web servers (default is port 80).
 # This is typically used for HTTP traffic on the web-server VMs.
 variable "web_port" {
-    description = "Open port for web-servers"
-    type = number
-    default = 80
+  description = "Open port for web-servers"
+  type        = number
+  default     = 80
 }
 
 # --------------------------------------------
@@ -66,9 +66,9 @@ variable "web_port" {
 # Defines the port to be opened for database servers (default is port 3306).
 # This is typically used for MySQL or other database services.
 variable "db_port" {
-    description = "Open port for db-servers"
-    type = number
-    default = 3306
+  description = "Open port for db-servers"
+  type        = number
+  default     = 3306
 }
 
 # --------------------------------------------
@@ -77,9 +77,9 @@ variable "db_port" {
 # Defines the port to be opened for SSH access to all virtual machines.
 # By default, this is set to port 22, which is the standard for SSH connections.
 variable "ssh_port" {
-    description = "Open port for ssh connections"
-    type = number
-    default = 22
+  description = "Open port for ssh connections"
+  type        = number
+  default     = 22
 }
 
 # --------------------------------------------
@@ -153,5 +153,5 @@ variable "project" {
 # This user must exist in the current OpenStack project and have appropriate permissions.
 variable "admin_name" {
   type = string
-  
+
 }

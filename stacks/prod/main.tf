@@ -19,11 +19,11 @@
 # the virtual network and subnets, and integrates with the external network
 # to allow access via floating IPs.
 module "network" {
-    source = "../../modules/networking"
+  source = "../../modules/networking"
 
-    network_name = var.network_name
-    router_name = var.router_name
-    external_network_id = var.external_network_id
+  network_name        = var.network_name
+  router_name         = var.router_name
+  external_network_id = var.external_network_id
 }
 
 # --------------------------------------------
@@ -35,13 +35,13 @@ module "network" {
 # It depends on the network module to ensure resources are created
 # in the correct order.
 module "vm_instance" {
-    source = "../../modules/compute"
-    depends_on = [ module.network ]
+  source     = "../../modules/compute"
+  depends_on = [module.network]
 
-    keypair_name = var.keypair_name
-    network_id = module.network.network_id
-    subnet_ids = module.network.subnet_ids
-    external_network_name = var.external_network_name
+  keypair_name          = var.keypair_name
+  network_id            = module.network.network_id
+  subnet_ids            = module.network.subnet_ids
+  external_network_name = var.external_network_name
 }
 
 
@@ -55,8 +55,8 @@ module "vm_instance" {
 module "container" {
   source = "../../modules/storage"
 
-  admin_name = var.admin_name  # OpenStack admin user granted write access
-  project    = var.project    
+  admin_name = var.admin_name # OpenStack admin user granted write access
+  project    = var.project
 }
 
 # --------------------------------------------
@@ -67,8 +67,8 @@ module "container" {
 # Each volume is attached to its corresponding VM to provide durable storage that
 # persists independently of the VM lifecycle.
 module "volume" {
-  source = "../../modules/persistent-storage"
-  depends_on = [ module.vm_instance ]
+  source     = "../../modules/persistent-storage"
+  depends_on = [module.vm_instance]
 
   vm_id = module.vm_instance.instance_id
 }
@@ -79,13 +79,13 @@ module "volume" {
 # Creates an OpenStack load balancer with associated networking.
 # Depends on both networking and compute modules for proper linkage.
 module "loadbalancer" {
-  source = "../../modules/load-balancing"
-  depends_on = [ module.network, module.vm_instance ]
+  source     = "../../modules/load-balancing"
+  depends_on = [module.network, module.vm_instance]
 
   enable_lb = true
-  
+
   external_network_name = var.external_network_name
-  network_id = module.network.network_id
-  subnet_id = module.network.subnet_ids["web"]
-  instance_ips = [ module.vm_instance.instance_ip["web"] ]
+  network_id            = module.network.network_id
+  subnet_id             = module.network.subnet_ids["web"]
+  instance_ips          = [module.vm_instance.instance_ip["web"]]
 }

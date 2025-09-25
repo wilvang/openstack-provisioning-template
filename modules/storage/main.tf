@@ -17,11 +17,11 @@
 # This container can be used to store objects (files, blobs)
 # and can be attached to VMs or services as needed.
 resource "openstack_objectstorage_container_v1" "public_container" {
-  region = var.region_name     
-  name   = var.container_name    
+  region = var.region_name
+  name   = var.container_name
 
   # Public read access to all users (anonymous read)
-  container_read  = ".r:*"
+  container_read = ".r:*"
 
   # Write access restricted to admin user in current project
   container_write = "${data.openstack_identity_auth_scope_v3.current.project_id}:${var.admin_name}"
