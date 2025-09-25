@@ -23,18 +23,36 @@
 # Define the virtual machine (VM) instances that will be
 # created in OpenStack. Each VM is configured with 
 # specific parameters such as the name, image, flavor, 
-# and security groups.
+# security group and user data.
 resource "openstack_compute_instance_v2" "vm_instance" {
-  for_each = { for vm in var.vm_setup : vm.name => vm }
+  for_each = var.vm_setup
 
-  name            = each.value.name
+  name            = each.value
   image_name      = var.image_name
   flavor_name     = var.flavor_name
   key_pair        = var.keypair_name
-  security_groups = [openstack_networking_secgroup_v2.vm_secgroup[each.key].name]
+  security_groups = [ openstack_networking_secgroup_v2.vm_secgroup[each.key].name, ]
 
   network {
-    name = var.network
+    port = openstack_networking_port_v2.vm_port[each.key].id
+  }
+}
+
+# --------------------------------------------
+# Networking Port Resource
+# --------------------------------------------
+# Creates networking ports attached to the specified network,
+# with fixed IP addresses allocated from the corresponding
+# subnet for each VM.
+resource "openstack_networking_port_v2" "vm_port" {
+  for_each = var.vm_setup
+
+  name           = "${each.key}_port"
+  network_id     = var.network_id
+  admin_state_up = "true"  
+  
+  fixed_ip {
+    subnet_id = var.subnet_ids[each.key]
   }
 }
 
@@ -45,7 +63,7 @@ resource "openstack_compute_instance_v2" "vm_instance" {
 # for each VM instance. Floating IPs are typically 
 # used to provide public access to instances.
 resource "openstack_networking_floatingip_v2" "float_ip" {
-  for_each = { for vm in var.vm_setup : vm.name => vm }
+  for_each = openstack_compute_instance_v2.vm_instance
 
   pool       = data.openstack_networking_network_v2.ext_network.name
   subnet_ids = data.openstack_networking_subnet_ids_v2.ext_subnets.ids
@@ -54,11 +72,13 @@ resource "openstack_networking_floatingip_v2" "float_ip" {
 # --------------------------------------------
 # Floating IP Association Resource
 # --------------------------------------------
+# Associates the allocated floating IPs to the VM ports,
+# providing public network connectivity.
 resource "openstack_networking_floatingip_associate_v2" "fip_assoc" {
   for_each = openstack_networking_floatingip_v2.float_ip
 
   floating_ip = each.value.address
-  port_id     = data.openstack_networking_port_v2.instance_port[each.key].id
+  port_id     = openstack_networking_port_v2.vm_port[each.key].id
 }
 
 # --------------------------------------------
@@ -68,10 +88,10 @@ resource "openstack_networking_floatingip_associate_v2" "fip_assoc" {
 # where the security group will define which network 
 # traffic is allowed or denied.
 resource "openstack_networking_secgroup_v2" "vm_secgroup" {
-  for_each = { for vm in var.vm_setup : vm.name => vm }
+  for_each = var.vm_setup
 
   name        = "${each.key}_sg"
-  description = "Security group for ${each.key} instance"
+  description = "Security group for ${each.value} instance"
 }
 
 # --------------------------------------------
@@ -82,8 +102,8 @@ resource "openstack_networking_secgroup_v2" "vm_secgroup" {
 # appropriate ports based on the VM type (web or db).
 resource "openstack_networking_secgroup_rule_v2" "server_specific_rule" {
   for_each = {
-    for vm in var.vm_setup :
-    vm.name => vm if (vm.type == "web" || vm.type == "db")
+    web = var.web_port
+    db = var.db_port
   }
 
   security_group_id = openstack_networking_secgroup_v2.vm_secgroup[each.key].id
@@ -92,10 +112,8 @@ resource "openstack_networking_secgroup_rule_v2" "server_specific_rule" {
   ethertype = var.sg_rule.ethertype
   protocol  = var.sg_rule.protocol
   remote_ip_prefix = var.sg_rule.remote_ip_prefix
-
-  # Conditional logic to allow different ports based on the VM type
-  port_range_min = each.value.type == "web" ? var.web_port : var.db_port
-  port_range_max = each.value.type == "web" ? var.web_port : var.db_port
+  port_range_min = each.value
+  port_range_max = each.value
 }
 
 # --------------------------------------------
@@ -106,7 +124,7 @@ resource "openstack_networking_secgroup_rule_v2" "server_specific_rule" {
 resource "openstack_networking_secgroup_rule_v2" "ssh_connect_rule" {
   for_each = openstack_networking_secgroup_v2.vm_secgroup
 
-  security_group_id = each.value.id
+  security_group_id = openstack_networking_secgroup_v2.vm_secgroup[each.key].id
 
   direction = var.sg_rule.direction
   ethertype = var.sg_rule.ethertype
