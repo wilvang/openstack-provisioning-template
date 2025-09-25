@@ -98,10 +98,14 @@ variable "network_name" {
 # --------------------------------------------
 # A list of CIDR blocks to be used for creating subnets within the OpenStack network.
 # The default includes three subnets with a /26 mask.
-variable "subnet_cidr_blocks" {
-  description = "List of CIDR blocks for the subnets."
-  type        = list(string)
-  default     = ["192.168.50.0/26", "192.168.50.64/26", "192.168.50.128/26"]
+variable "subnet_layout" {
+  description = "CIDR blocks for the different subnets."
+  type        = map(string)
+  default = {
+    web = "192.168.80.0/26",
+    app = "192.168.80.64/26",
+    db  = "192.168.80.128/26"
+  }
 }
 
 # --------------------------------------------
@@ -136,6 +140,7 @@ variable "external_network_id" {
   type        = string
 }
 
+# --------------------------------------------
 # Project Name Variable
 # --------------------------------------------
 # The name of the OpenStack project (tenant) used for scoping
@@ -152,6 +157,26 @@ variable "project" {
 # The OpenStack admin username who will have write access to the storage container.
 # This user must exist in the current OpenStack project and have appropriate permissions.
 variable "admin_name" {
-  type = string
+  description = "The OpenStack admin usernamer who will have write access to the storage container."
+  type        = string
+}
 
+# --------------------------------------------
+# GitLab Backend Variable
+# --------------------------------------------
+# Configures the HTTP backend URL integrated with GitLab's Terraform state API.
+# This backend manages the remote Terraform state storage within GitLab.
+variable "gitlab_backend" {
+  description = "HTTP backend, integrated with GitLab's Terraform state API."
+  type        = string
+}
+
+# --------------------------------------------
+# Enable Load Balancer Flag
+# --------------------------------------------
+# Boolean flag to enable or disable creation of the load balancer resources.
+variable "enable_lb" {
+  type        = bool
+  description = "Flag to enable or disable the load balancer."
+  default     = false
 }
