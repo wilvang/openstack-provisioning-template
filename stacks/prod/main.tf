@@ -1,16 +1,20 @@
 # ============================================
 # STACK CONFIGURATION: Prod
 # ============================================
-# This file represents the stack-level orchestration of Terraform modules.
-# It ties together the networking and compute modules to deploy a complete
-# infrastructure stack in the target environment (e.g., prod or dev).
+# This file defines the **stack-level orchestration** of all Terraform modules
+# required to deploy a complete production infrastructure on OpenStack.
+# It integrates networking, compute, storage, and load balancing components
+# into a unified stack for the target environment (e.g., prod or dev).
 #
 # Modules Included:
-#   - Networking: Creates networks and subnets
-#   - Compute:   Provisions virtual machines with floating IPs
+#   - Networking:         Creates networks, routers, and subnets
+#   - Compute:            Provisions virtual machines and floating IPs
+#   - Object Storage:     Creates Swift object storage containers with ACLs
+#   - Persistent Storage: Attaches durable Cinder block volumes to VMs
+#   - Load Balancing:     Deploys an OpenStack load balancer with backend pool
 #
-# Variables are passed in from the corresponding terraform.tfvars file
-# for environment-specific configuration.
+# All variables are supplied via the corresponding terraform.tfvars file
+# to allow environment-specific configuration and scaling.
 
 # --------------------------------------------
 # NETWORK MODULE
