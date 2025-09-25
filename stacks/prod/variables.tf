@@ -7,28 +7,6 @@
 # networking, security configurations, and more.
 
 # --------------------------------------------
-# Image Name Variable
-# --------------------------------------------
-# The name of the OpenStack image to be used for creating virtual machines.
-# You can provide the exact image name you want, which typically refers 
-# to the base operating system or template for the VM.
-variable "image_name" {
-  description = "Name of the OpenStack image to use for the VM"
-  type        = string
-}
-
-# --------------------------------------------
-# Flavor ID Variable
-# --------------------------------------------
-# The ID of the OpenStack flavor to use for creating the virtual machines.
-# A flavor defines the compute, memory, and storage capacity for the VM.
-# You can specify a custom flavor ID or use a predefined one.
-variable "flavor_name" {
-  description = "ID of the OpenStack flavor to use"
-  type        = string
-}
-
-# --------------------------------------------
 # Keypair Name Variable
 # --------------------------------------------
 # The name of the OpenStack keypair to use for secure SSH access to the VM.
@@ -156,4 +134,24 @@ variable "router_name" {
 variable "external_network_id" {
   description = "The external network UUID for router connectivity."
   type        = string
+}
+
+# Project Name Variable
+# --------------------------------------------
+# The name of the OpenStack project (tenant) used for scoping
+# authentication and resource creation.
+# This should match the project configured in your OpenStack environment.
+variable "project" {
+  description = "The OpenStack project name for authentication scope and resource management."
+  type        = string
+}
+
+# --------------------------------------------
+# Admin Username Variable
+# --------------------------------------------
+# The OpenStack admin username who will have write access to the storage container.
+# This user must exist in the current OpenStack project and have appropriate permissions.
+variable "admin_name" {
+  type = string
+  
 }
