@@ -30,14 +30,3 @@ data "openstack_networking_network_v2" "ext_network" {
 data "openstack_networking_subnet_ids_v2" "ext_subnets" {
   network_id = data.openstack_networking_network_v2.ext_network.id
 }
-
-
-# --------------------------------------------
-# Networking Port Data Source
-# --------------------------------------------
-data "openstack_networking_port_v2" "instance_port" {
-  for_each = { for vm in var.vm_setup : vm.name => vm }
-
-  device_id  = openstack_compute_instance_v2.vm_instance[each.key].id
-  network_id = data.openstack_networking_network_v2.ext_network.id
-}
