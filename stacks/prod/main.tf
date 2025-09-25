@@ -57,3 +57,10 @@ module "container" {
   admin_name = var.admin_name  # OpenStack admin user granted write access
   project    = var.project    
 }
+
+module "volume" {
+  source = "../../modules/persistent-storage"
+  depends_on = [ module.vm_instance ]
+
+  vm_id = module.vm_instance.instance_id
+}
