@@ -26,3 +26,9 @@ Once you have the **terraform.tfvars** file prepared, you can create a symbolic 
 ln -s ../../terraform.tfvars ./terraform.tfvars
 ln -s ../../variables.tf ./variables.tf
 ```
+
+### Step 4: Initialize stack with OpenTofu
+
+```bash
+tofu init -backend-config="username=${TF_HTTP_USER}"
+```

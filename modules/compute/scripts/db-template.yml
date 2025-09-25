@@ -1,0 +1,13 @@
+#cloud-config
+packages:
+  - mysql-server
+
+write_files:
+  - path: /root/db-info.txt
+    content: |
+      MySQL server installed with OpenTofu on OpenStack.
+      Remember to secure your MySQL installation!
+
+runcmd:
+  - systemctl start mysql
+  - systemctl enable mysql
