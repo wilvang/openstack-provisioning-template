@@ -42,3 +42,18 @@ module "vm_instance" {
     subnet_ids = module.network.subnet_ids
     external_network_name = var.external_network_name
 }
+
+
+# --------------------------------------------
+# STORAGE MODULE
+# --------------------------------------------
+# Manages the provisioning of OpenStack object storage containers.
+# The module creates containers with configurable read/write ACLs,
+# scoped to the specified project and admin user.
+# This supports persistent object storage usable by VMs or services.
+module "container" {
+  source = "../../modules/storage"
+
+  admin_name = var.admin_name  # OpenStack admin user granted write access
+  project    = var.project    
+}
