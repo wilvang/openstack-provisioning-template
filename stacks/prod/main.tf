@@ -44,7 +44,6 @@ module "vm_instance" {
   external_network_name = var.external_network_name
 }
 
-
 # --------------------------------------------
 # STORAGE MODULE
 # --------------------------------------------
@@ -82,7 +81,7 @@ module "loadbalancer" {
   source     = "../../modules/load-balancing"
   depends_on = [module.network, module.vm_instance]
 
-  enable_lb = true
+  enable_lb = var.enable_lb
 
   external_network_name = var.external_network_name
   network_id            = module.network.network_id
