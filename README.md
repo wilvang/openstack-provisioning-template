@@ -37,7 +37,7 @@ This section describes how to set up and partition the infrastructure for this p
 ### Step 1: Install OpenTofu and OpenStack CLI
 Before getting started, you need to install the required tools.
 
-- **For Ubuntu/Linux:**
+- **For MacOS:**
   Open your terminal and run:
 
 ```bash
@@ -109,13 +109,14 @@ tofu destroy
 ### Networking Module
 
 - Creates a 3-tier network architecture (public, application, database subnets)
-- Configures security groups for SSH, HTTP, and database access
 - Allows customizable network and subnet naming, IP ranges
+- Outputs network and subnet IDs
 
 ### Compute Module
 
 - Boots VMs with configurable flavors, images, and names
 - Supports cloud-init scripts to install and configure HTTP and DB servers
+- Configures security groups for SSH, HTTP, and database access
 - Attaches persistent storage volumes optionally
 - Outputs VM IDs and IP addresses
 
@@ -124,16 +125,17 @@ tofu destroy
 - Configurable enable/disable flag for LBaaS
 - Creates a load balancer with associated listeners and pools
 - Registers frontend VMs as backend members
-- Outputs LB endpoint IP or DNS
+- Outputs LB endpoint IP
 
 ### Persistent Storage Module
 
 - Provisions Cinder volumes attachable to VMs
 - Configurable size and volume type
+- Outputs volume IDs
 
 ### Storage Module
 
 - Creates Swift object storage containers
-- Outputs container names/IDs
+- Outputs container names
 
 ---
