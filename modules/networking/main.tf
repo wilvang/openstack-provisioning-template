@@ -30,7 +30,7 @@ resource "openstack_networking_network_v2" "network" {
 # Define subnets to be created within the network.
 resource "openstack_networking_subnet_v2" "subnet" {
   for_each = var.subnet_layout
-  
+
   name            = "${var.network_name}_${each.key}_subnet"
   network_id      = openstack_networking_network_v2.network.id
   cidr            = each.value

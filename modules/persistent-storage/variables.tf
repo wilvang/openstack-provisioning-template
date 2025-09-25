@@ -23,8 +23,8 @@ variable "region_name" {
 # Specifies the name of the persistent block storage volume to be created.
 # This name is used to identify the volume within the OpenStack environment and should be unique.
 variable "volume_name" {
-  type    = string
-  default = "persistent_volume"
+  type        = string
+  default     = "persistent_volume"
   description = "The name assigned to the persistent block storage volume."
 }
 
@@ -34,8 +34,8 @@ variable "volume_name" {
 # Defines the size of the block storage volume in gigabytes (GB).
 # Set this value based on the required storage capacity for your workload.
 variable "volume_size" {
-  type    = number
-  default = 10
+  type        = number
+  default     = 10
   description = "The size of the block storage volume in gigabytes (GB)."
 }
 

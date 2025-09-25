@@ -31,7 +31,7 @@ resource "openstack_compute_instance_v2" "vm_instance" {
   image_name      = var.image_name
   flavor_name     = var.flavor_name
   key_pair        = var.keypair_name
-  security_groups = [ openstack_networking_secgroup_v2.vm_secgroup[each.key].name ]
+  security_groups = [openstack_networking_secgroup_v2.vm_secgroup[each.key].name]
 
   user_data = templatefile("${path.module}/${var.template[each.key]}", {})
 
@@ -51,8 +51,8 @@ resource "openstack_networking_port_v2" "vm_port" {
 
   name           = "${each.key}_port"
   network_id     = var.network_id
-  admin_state_up = "true"  
-  
+  admin_state_up = "true"
+
   fixed_ip {
     subnet_id = var.subnet_ids[each.key]
   }
@@ -105,17 +105,17 @@ resource "openstack_networking_secgroup_v2" "vm_secgroup" {
 resource "openstack_networking_secgroup_rule_v2" "server_specific_rule" {
   for_each = {
     web = var.web_port
-    db = var.db_port
+    db  = var.db_port
   }
 
   security_group_id = openstack_networking_secgroup_v2.vm_secgroup[each.key].id
 
-  direction = var.sg_rule.direction
-  ethertype = var.sg_rule.ethertype
-  protocol  = var.sg_rule.protocol
+  direction        = var.sg_rule.direction
+  ethertype        = var.sg_rule.ethertype
+  protocol         = var.sg_rule.protocol
   remote_ip_prefix = var.sg_rule.remote_ip_prefix
-  port_range_min = each.value
-  port_range_max = each.value
+  port_range_min   = each.value
+  port_range_max   = each.value
 }
 
 # --------------------------------------------
@@ -128,10 +128,10 @@ resource "openstack_networking_secgroup_rule_v2" "ssh_connect_rule" {
 
   security_group_id = openstack_networking_secgroup_v2.vm_secgroup[each.key].id
 
-  direction = var.sg_rule.direction
-  ethertype = var.sg_rule.ethertype
-  protocol  = var.sg_rule.protocol
+  direction        = var.sg_rule.direction
+  ethertype        = var.sg_rule.ethertype
+  protocol         = var.sg_rule.protocol
   remote_ip_prefix = var.sg_rule.remote_ip_prefix
-  port_range_min = var.ssh_port
-  port_range_max = var.ssh_port
+  port_range_min   = var.ssh_port
+  port_range_max   = var.ssh_port
 }

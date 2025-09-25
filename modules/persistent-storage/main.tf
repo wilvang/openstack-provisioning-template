@@ -32,7 +32,7 @@ resource "openstack_blockstorage_volume_v3" "volume" {
 # This enables volumes to be associated with different VMs as needed.
 resource "openstack_compute_volume_attach_v2" "volume_attach" {
   for_each = openstack_blockstorage_volume_v3.volume
-  
+
   instance_id = var.vm_id[each.key]
   volume_id   = openstack_blockstorage_volume_v3.volume[each.key].id
 }
