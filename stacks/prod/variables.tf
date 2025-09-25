@@ -15,7 +15,6 @@
 variable "image_name" {
   description = "Name of the OpenStack image to use for the VM"
   type        = string
-  default     = "Debian 13 (trixie) stable amd64"
 }
 
 # --------------------------------------------
@@ -27,7 +26,6 @@ variable "image_name" {
 variable "flavor_name" {
   description = "ID of the OpenStack flavor to use"
   type        = string
-  default     = "gx3.2c2r"
 }
 
 # --------------------------------------------
@@ -48,35 +46,6 @@ variable "keypair_name" {
 # to the outside world for public IPs.
 variable "external_network_name" {
   description = "Name of the external network for floating IPs"
-  type        = string
-}
-
-# --------------------------------------------
-# VM Setup Variable
-# --------------------------------------------
-# A list of VM setup specifications. Each entry defines the name and type
-# of the VM to be created. The `type` can be used to define roles, such as 
-# "web" or "db", to apply specific configurations (like ports) based on the VM type.
-variable "vm_setup" {
-  description = "A list of VM setup specifications."
-  type = list(object({
-    name  = string
-    type  = string
-  }))
-  default = [
-    { name = "web-server", type = "web" },
-    { name = "db-server", type = "db" }
-  ]
-}
-
-# --------------------------------------------
-# Network Configuration
-# --------------------------------------------
-# This variable defines the network to which the VM instance will be connected.
-# It's a string that should match the name of the network in OpenStack.
-# This is an essential field for ensuring the VM has proper connectivity.
-variable "network" {
-  description = "Name of network to associate with the VM instance"
   type        = string
 }
 
