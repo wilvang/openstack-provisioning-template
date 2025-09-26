@@ -71,7 +71,7 @@ module "container" {
 # Each volume is attached to its corresponding VM to provide durable storage that
 # persists independently of the VM lifecycle.
 module "volume" {
-  source     = "../../modules/persistent-storage"
+  source = "../../modules/persistent-storage"
 
   volume_size = 10
 }
