@@ -148,3 +148,12 @@ variable "network_id" {
   description = "ID of network to associate with the VM instance"
   type        = string
 }
+
+# --------------------------------------------
+# Volumes IDs Variable
+# --------------------------------------------
+# Defines the IDs for persistent block storage volumes.
+# Each volume is represented by a key (typically matching the VM role),
+variable "volume_ids" {
+  type = map(string)
+}

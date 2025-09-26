@@ -20,12 +20,15 @@ variable "region_name" {
 # --------------------------------------------
 # Volume Name Variable
 # --------------------------------------------
-# Specifies the name of the persistent block storage volume to be created.
-# This name is used to identify the volume within the OpenStack environment and should be unique.
+# Specifies the names of the persistent block storage volumes to be created.
+# This name is used to identify each volume within the OpenStack environment and should be unique.
 variable "volume_name" {
-  type        = string
-  default     = "persistent_volume"
-  description = "The name assigned to the persistent block storage volume."
+  type        = map(string)
+  default     = {
+    web = "web_volume",
+    db = "db_volume"
+  }
+  description = "The names assigned to the persistent block storage volumes."
 }
 
 # --------------------------------------------
@@ -37,14 +40,4 @@ variable "volume_size" {
   type        = number
   default     = 10
   description = "The size of the block storage volume in gigabytes (GB)."
-}
-
-# --------------------------------------------
-# VM Instance ID Variable
-# --------------------------------------------
-# Contains a map of VM instance IDs to which the volume may be attached.
-# This enables attaching the volume dynamically to one or multiple instances.
-variable "vm_id" {
-  type        = map(string)
-  description = "A map of VM instance IDs for attaching the volume."
 }

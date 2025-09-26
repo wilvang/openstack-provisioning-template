@@ -40,8 +40,9 @@ module "network" {
 # in the correct order.
 module "vm_instance" {
   source     = "../../modules/compute"
-  depends_on = [module.network]
+  depends_on = [module.network, module.volume]
 
+  volume_ids            = module.volume.volume_id
   keypair_name          = var.keypair_name
   network_id            = module.network.network_id
   subnet_ids            = module.network.subnet_ids
@@ -71,9 +72,8 @@ module "container" {
 # persists independently of the VM lifecycle.
 module "volume" {
   source     = "../../modules/persistent-storage"
-  depends_on = [module.vm_instance]
 
-  vm_id = module.vm_instance.instance_id
+  volume_size = 10
 }
 
 # --------------------------------------------
