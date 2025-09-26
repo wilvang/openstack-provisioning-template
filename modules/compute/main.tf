@@ -84,6 +84,19 @@ resource "openstack_networking_floatingip_associate_v2" "fip_assoc" {
 }
 
 # --------------------------------------------
+# Volume Attachment Resource
+# --------------------------------------------
+# Attaches the block storage volumes created above to their respective VM instances.
+# The attachment is dynamic, based on the map of VM instance IDs provided.
+# This enables volumes to be associated with different VMs as needed.
+resource "openstack_compute_volume_attach_v2" "volume_attach" {
+  for_each = var.volume_ids
+
+  instance_id = openstack_compute_instance_v2.vm_instance[each.key].id
+  volume_id   = each.value
+}
+
+# --------------------------------------------
 # Security Group Resource
 # --------------------------------------------
 # This resource creates a security group for each VM, 
