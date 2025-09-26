@@ -23,10 +23,10 @@ variable "region_name" {
 # Specifies the names of the persistent block storage volumes to be created.
 # This name is used to identify each volume within the OpenStack environment and should be unique.
 variable "volume_name" {
-  type        = map(string)
-  default     = {
+  type = map(string)
+  default = {
     web = "web_volume",
-    db = "db_volume"
+    db  = "db_volume"
   }
   description = "The names assigned to the persistent block storage volumes."
 }
