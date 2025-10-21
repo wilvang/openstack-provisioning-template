@@ -116,9 +116,11 @@ resource "openstack_networking_secgroup_v2" "vm_secgroup" {
 # for the web and database servers, assigning the
 # appropriate ports based on the VM type (web or db).
 resource "openstack_networking_secgroup_rule_v2" "server_specific_rule" {
-  for_each = {
-    web = var.web_port
-    db  = var.db_port
+   for_each = {
+    for k, v in {
+      web = var.web_port
+      db  = var.db_port
+    } : k => v if contains(keys(var.vm_setup), k)
   }
 
   security_group_id = openstack_networking_secgroup_v2.vm_secgroup[each.key].id
