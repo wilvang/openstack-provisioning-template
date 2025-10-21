@@ -2,6 +2,10 @@
 
 name: Simple Terraform CI
 
+permissions:
+  contents: read
+  actions: read
+
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
@@ -13,24 +17,37 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  validate:
+    permissions:
+      contents: read
+      actions: read
     runs-on: [ self-hosted ]
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+      
+      - name: OpenTofu Validate
+        run: tofu validate
+        working-directory: ./stacks/prod
+      
+      - name: Security Scan (tfsec)
+        run: |
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+          ./tfsec ./stacks/prod
+
+  deploy-prod:
+    permissions:
+      contents: write
+      actions: write
+    #needs: deploy-staging
+    runs-on: [ self-hosted ]
+    steps:
       - uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: OpenTofu Init
+        run: tofu init
+        working-directory: ./stacks/prod
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+      - name: OpenTofu Plan (manual approval required)
+        run: tofu plan -auto-approve
+        working-directory: ./stacks/prod
