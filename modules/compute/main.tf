@@ -144,7 +144,7 @@ resource "openstack_networking_secgroup_rule_v2" "ssh_connect_rule" {
   direction        = var.sg_rule.direction
   ethertype        = var.sg_rule.ethertype
   protocol         = var.sg_rule.protocol
-  remote_ip_prefix = var.sg_rule.remote_ip_prefix
+  remote_ip_prefix = var.remote_ssh_prefix
   port_range_min   = var.ssh_port
   port_range_max   = var.ssh_port
 }
