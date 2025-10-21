@@ -31,7 +31,6 @@ resource "openstack_compute_instance_v2" "vm_instance" {
   image_name      = var.image_name
   flavor_name     = var.flavor_name
   key_pair        = var.keypair_name
-  security_groups = [openstack_networking_secgroup_v2.vm_secgroup[each.key].name]
 
   user_data = templatefile("${path.module}/${var.template[each.key]}", {})
 
@@ -56,6 +55,10 @@ resource "openstack_networking_port_v2" "vm_port" {
   fixed_ip {
     subnet_id = var.subnet_ids[each.key]
   }
+
+  security_group_ids = [
+    openstack_networking_secgroup_v2.vm_secgroup[each.key].id
+  ]
 }
 
 # --------------------------------------------
