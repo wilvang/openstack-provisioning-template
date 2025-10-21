@@ -14,7 +14,7 @@
 variable "image_name" {
   description = "Name of the OpenStack image to use for the VM"
   type        = string
-  default     = "Debian 13 (trixie) stable amd64"
+  default     = "Debian 11 (Bullseye) oldoldstable amd64"
 }
 
 # --------------------------------------------
@@ -115,6 +115,7 @@ variable "template" {
   default = {
     web = "scripts/web-template.yml"
     db  = "scripts/db-template.yml"
+    app = "scripts/runner-template.yml"
   }
 }
 
@@ -153,7 +154,17 @@ variable "network_id" {
 # Volumes IDs Variable
 # --------------------------------------------
 # Defines the IDs for persistent block storage volumes.
-# Each volume is represented by a key (typically matching the VM role),
+# Each volume is represented by a key (typically matching the VM role)
 variable "volume_ids" {
   type = map(string)
+}
+
+# --------------------------------------------
+# Remote SSH Prefix
+# --------------------------------------------
+# Defines the IP prefix for establishing ssh
+# connections with the VMs.
+variable "remote_ssh_prefix" {
+  type    = string
+  default = "10.0.0.0/8"
 }
