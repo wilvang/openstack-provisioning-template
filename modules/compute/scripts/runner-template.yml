@@ -1,0 +1,15 @@
+#cloud-config
+package_update: true
+packages:
+  - curl
+  - tar
+  - ca-certificates
+  - git
+  - jq
+  - libicu67
+  - libssl1.1
+  - libkrb5-3
+  - zlib1g
+
+runcmd:
+  - apt-get update -y && apt-get upgrade -y
