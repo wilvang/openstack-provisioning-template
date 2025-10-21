@@ -19,8 +19,8 @@
 # the virtual network and subnets, and integrates with the external network
 # to allow access via floating IPs.
 module "network" {
-  source = "../../modules/networking"
-
+  source = "git::https://github.com/wilvang/openstack-provisioning-template.git//modules/networking?ref=networking/v2.0.2"
+  
   network_name        = var.network_name
   router_name         = var.router_name
   external_network_id = var.external_network_id
@@ -35,8 +35,8 @@ module "network" {
 # such as keypairs, templates, and security group rules.
 # It depends on the network module to ensure resources are created
 # in the correct order.
-module "vm_instance" {
-  source     = "../../modules/compute"
+module "github-runner" {
+  source     = "git::https://github.com/wilvang/openstack-provisioning-template.git//modules/compute?ref=compute/v2.5.1"
   depends_on = [module.network, module.volume]
 
   volume_ids            = module.volume.volume_id
@@ -55,7 +55,7 @@ module "vm_instance" {
 # Each volume is attached to its corresponding VM to provide durable storage that
 # persists independently of the VM lifecycle.
 module "volume" {
-  source = "../../modules/persistent-storage"
+  source = "git::https://github.com/wilvang/openstack-provisioning-template.git//modules/persistent-storage?ref=persistent-storage/v2.0.0"
 
   volume_name = var.volume_name
 }

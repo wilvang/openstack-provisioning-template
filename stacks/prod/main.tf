@@ -23,8 +23,8 @@
 # the virtual network and subnets, and integrates with the external network
 # to allow access via floating IPs.
 module "network" {
-  source = "../../modules/networking"
-
+  source = "git::https://github.com/wilvang/openstack-provisioning-template.git//modules/networking?ref=networking/v2.0.2"
+  
   network_name        = var.network_name
   router_name         = var.router_name
   external_network_id = var.external_network_id
@@ -39,7 +39,7 @@ module "network" {
 # It depends on the network module to ensure resources are created
 # in the correct order.
 module "vm_instance" {
-  source     = "../../modules/compute"
+  source     = "git::https://github.com/wilvang/openstack-provisioning-template.git//modules/compute?ref=compute/v2.5.1"
   depends_on = [module.network, module.volume]
 
   volume_ids            = module.volume.volume_id
@@ -57,7 +57,7 @@ module "vm_instance" {
 # scoped to the specified project and admin user.
 # This supports persistent object storage usable by VMs or services.
 module "container" {
-  source = "../../modules/storage"
+  source = "git::https://github.com/wilvang/openstack-provisioning-template.git//modules/storage?ref=storage/v1.1.0"
 
   admin_name = var.admin_name # OpenStack admin user granted write access
   project    = var.project
@@ -71,7 +71,7 @@ module "container" {
 # Each volume is attached to its corresponding VM to provide durable storage that
 # persists independently of the VM lifecycle.
 module "volume" {
-  source = "../../modules/persistent-storage"
+  source = "git::https://github.com/wilvang/openstack-provisioning-template.git//modules/persistent-storage?ref=persistent-storage/v2.0.0"
 
   volume_size = 10
 }
@@ -82,7 +82,7 @@ module "volume" {
 # Creates an OpenStack load balancer with associated networking.
 # Depends on both networking and compute modules for proper linkage.
 module "loadbalancer" {
-  source     = "../../modules/load-balancing"
+  source     = "git::https://github.com/wilvang/openstack-provisioning-template.git//modules/load-balancing?ref=load-balancing/v1.2.1"
   depends_on = [module.network, module.vm_instance]
 
   enable_lb = var.enable_lb
