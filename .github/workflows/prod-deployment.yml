@@ -1,10 +1,8 @@
-# This is a basic workflow to help you get started with Actions
-
-name: Simple Terraform CI
+name: Deploy PROD
 
 permissions:
-  contents: write
-  actions: write
+  contents: read
+  actions: read
 
 env:
   OS_APPLICATION_CREDENTIAL_ID: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
@@ -14,20 +12,21 @@ env:
   TF_HTTP_PASSWORD: ${{ secrets.TF_HTTP_PASSWORD }}
   TFVARS_CONTENT: ${{ secrets.PROD_TFVARS }}
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "github-workflows" ]
-  pull_request:
-    branches: [ "github-workflows" ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
+  manual-approval:
+    runs-on: [ self-hosted ]
+    steps:
+      - name: Wait for manual approval
+        uses: hmarr/auto-approve-action@v2
+        if: github.event_name == 'workflow_dispatch'
+
   deploy-prod:
-    #needs: deploy-staging
+    needs: manual-approval
     runs-on: [ self-hosted ]
     steps:
       - uses: actions/checkout@v4
@@ -36,20 +35,17 @@ jobs:
           tofu_version: 1.10.6
 
       - name: Create tfvars file
-        run: |
-          echo "$TFVARS_CONTENT" > terraform.auto.tfvars
-          echo "Created tfvars file:"
-          ls -l
+        run: echo "$TFVARS_CONTENT" > terraform.auto.tfvars
         working-directory: ./stacks/prod
 
       - name: OpenTofu Init
-        run: tofu init -input=false -no-color -lock=false
+        run: tofu init -input=false -no-color
         working-directory: ./stacks/prod
 
       - name: OpenTofu Plan
-        run: tofu plan -input=false -no-color -lock=false
+        run: tofu plan -input=false -no-color
         working-directory: ./stacks/prod
-      
+
       - name: OpenTofu Apply
-        run: tofu apply -input=false -no-color -lock=false -auto-approve
+        run: tofu apply -input=false -no-color -auto-approve
         working-directory: ./stacks/prod

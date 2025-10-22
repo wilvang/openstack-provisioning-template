@@ -1,8 +1,8 @@
 # ============================================
-# STACK CONFIGURATION: Prod
+# STACK CONFIGURATION: Dev
 # ============================================
 # This file defines the **stack-level orchestration** of all Terraform modules
-# required to deploy a complete production infrastructure on OpenStack.
+# required to deploy a developemnt infrastructure environment on OpenStack.
 # It integrates networking, compute, storage, and load balancing components
 # into a unified stack for the target environment (e.g., prod or dev).
 #
@@ -11,7 +11,6 @@
 #   - Compute:            Provisions virtual machines and floating IPs
 #   - Object Storage:     Creates Swift object storage containers with ACLs
 #   - Persistent Storage: Attaches durable Cinder block volumes to VMs
-#   - Load Balancing:     Deploys an OpenStack load balancer with backend pool
 #
 # All variables are supplied via the corresponding terraform.tfvars file
 # to allow environment-specific configuration and scaling.
@@ -74,21 +73,4 @@ module "volume" {
   source = "git::https://github.com/wilvang/openstack-provisioning-template.git//modules/persistent-storage?ref=43784959c35017fe7e4961c780c31aa001197127"
 
   volume_size = 10
-}
-
-# --------------------------------------------
-# LOAD BALANCER MODULE
-# --------------------------------------------
-# Creates an OpenStack load balancer with associated networking.
-# Depends on both networking and compute modules for proper linkage.
-module "loadbalancer" {
-  source     = "git::https://github.com/wilvang/openstack-provisioning-template.git//modules/load-balancing?ref=062d856b4f833bebf4d777e6b2f20b574cb2fadc"
-  depends_on = [module.network, module.vm_instance]
-
-  enable_lb = var.enable_lb
-
-  external_network_name = var.external_network_name
-  network_id            = module.network.network_id
-  subnet_id             = module.network.subnet_ids["web"]
-  instance_ips          = [module.vm_instance.instance_ip["web"]]
 }

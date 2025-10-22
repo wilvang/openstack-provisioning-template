@@ -162,16 +162,6 @@ variable "admin_name" {
 }
 
 # --------------------------------------------
-# Enable Load Balancer Flag
-# --------------------------------------------
-# Boolean flag to enable or disable creation of the load balancer resources.
-variable "enable_lb" {
-  type        = bool
-  description = "Flag to enable or disable the load balancer."
-  default     = false
-}
-
-# --------------------------------------------
 # VM Setup Variable
 # --------------------------------------------
 # Map of VM roles to instance names.
@@ -179,7 +169,7 @@ variable "vm_setup" {
   type        = map(string)
   description = "Map of VM roles to instance names for the compute instances."
   default = {
-    web = "prod_web-server"
-    db  = "prod_db-server"
+    web = "dev_web-server"
+    db  = "dev_db-server"
   }
 }

@@ -1,8 +1,8 @@
 # ============================================
-# STACK CONFIGURATION: Prod
+# STACK CONFIGURATION: Stage
 # ============================================
 # This file defines the **stack-level orchestration** of all Terraform modules
-# required to deploy a complete production infrastructure on OpenStack.
+# required to deploy a complete staging infrastructure on OpenStack.
 # It integrates networking, compute, storage, and load balancing components
 # into a unified stack for the target environment (e.g., prod or dev).
 #

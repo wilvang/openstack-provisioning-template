@@ -179,7 +179,8 @@ variable "vm_setup" {
   type        = map(string)
   description = "Map of VM roles to instance names for the compute instances."
   default = {
-    web = "prod_web-server"
-    db  = "prod_db-server"
+    web = "stage_web-server"
+    db  = "stage_db-server"
+    app = "stage_app-server"
   }
 }

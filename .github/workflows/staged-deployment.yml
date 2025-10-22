@@ -1,0 +1,86 @@
+name: Deploy DEV & STAGE
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  OS_APPLICATION_CREDENTIAL_ID: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
+  OS_APPLICATION_CREDENTIAL_SECRET: ${{ secrets.OS_APPLICATION_CREDENTIAL_SECRET }}
+  OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
+  TF_HTTP_USERNAME: ${{ secrets.TF_HTTP_USERNAME }}
+  TF_HTTP_PASSWORD: ${{ secrets.TF_HTTP_PASSWORD }}
+  TFVARS_CONTENT_DEV: ${{ secrets.DEV_TFVARS }}
+  TFVARS_CONTENT_STAGE: ${{ secrets.STAGE_TFVARS }}
+
+
+on:
+  push:
+    branches: [ dev ]
+  workflow_dispatch:
+
+jobs:
+  deploy-dev:
+    runs-on: [ self-hosted ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.10.6
+
+      - name: Create tfvars file
+        run: echo "$TFVARS_CONTENT_DEV" > terraform.auto.tfvars
+        working-directory: ./stacks/dev
+
+      - name: OpenTofu Init
+        run: tofu init -input=false -no-color
+        working-directory: ./stacks/dev
+
+      - name: OpenTofu Plan
+        run: tofu plan -input=false -no-color
+        working-directory: ./stacks/dev
+
+      - name: OpenTofu Apply
+        run: tofu apply -input=false -no-color -auto-approve
+        working-directory: ./stacks/dev
+  
+  deploy-stage:
+    needs: deploy-dev
+    runs-on: [ self-hosted ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.10.6
+
+      - name: Create tfvars file
+        run: echo "$TFVARS_CONTENT_STAGE" > terraform.auto.tfvars
+        working-directory: ./stacks/stage
+
+      - name: OpenTofu Init
+        run: tofu init -input=false -no-color
+        working-directory: ./stacks/stage
+
+      - name: OpenTofu Plan
+        run: tofu plan -input=false -no-color
+        working-directory: ./stacks/stage
+
+      - name: OpenTofu Apply
+        run: tofu apply -input=false -no-color -auto-approve
+        working-directory: ./stacks/stage
+
+      - name: Authenticate GH CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth login --hostname git.ntnu.no --with-token <<< "${{ secrets.GH_TOKEN }}"
+
+      - name: Create PR for Prod
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B stage-to-prod   # -B resets branch if it exists locally
+          git push --force --set-upstream origin stage-to-prod
+          gh pr create --title "Stage → Prod" --body "Promoting stage changes to production" --base main --head stage-to-prod
