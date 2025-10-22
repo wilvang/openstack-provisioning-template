@@ -27,10 +27,10 @@
 resource "openstack_compute_instance_v2" "vm_instance" {
   for_each = var.vm_setup
 
-  name            = each.value
-  image_name      = var.image_name
-  flavor_name     = var.flavor_name
-  key_pair        = var.keypair_name
+  name        = each.value
+  image_name  = var.image_name
+  flavor_name = var.flavor_name
+  key_pair    = var.keypair_name
 
   user_data = templatefile("${path.module}/${var.template[each.key]}", {})
 
@@ -119,7 +119,7 @@ resource "openstack_networking_secgroup_v2" "vm_secgroup" {
 # for the web and database servers, assigning the
 # appropriate ports based on the VM type (web or db).
 resource "openstack_networking_secgroup_rule_v2" "server_specific_rule" {
-   for_each = {
+  for_each = {
     for k, v in {
       web = var.web_port
       db  = var.db_port

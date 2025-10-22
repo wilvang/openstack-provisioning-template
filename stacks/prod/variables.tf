@@ -162,16 +162,6 @@ variable "admin_name" {
 }
 
 # --------------------------------------------
-# GitLab Backend Variable
-# --------------------------------------------
-# Configures the HTTP backend URL integrated with GitLab's Terraform state API.
-# This backend manages the remote Terraform state storage within GitLab.
-variable "gitlab_backend" {
-  description = "HTTP backend, integrated with GitLab's Terraform state API."
-  type        = string
-}
-
-# --------------------------------------------
 # Enable Load Balancer Flag
 # --------------------------------------------
 # Boolean flag to enable or disable creation of the load balancer resources.
