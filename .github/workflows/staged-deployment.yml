@@ -38,11 +38,11 @@ jobs:
         working-directory: ./stacks/dev
 
       - name: OpenTofu Plan
-        run: tofu plan -input=false -no-color
+        run: tofu plan -input=false -no-color -out=tfplan
         working-directory: ./stacks/dev
 
       - name: OpenTofu Apply
-        run: tofu apply -input=false -no-color -auto-approve
+        run: tofu apply -input=false -no-color -auto-approve tfplan
         working-directory: ./stacks/dev
   
   deploy-stage:
@@ -63,11 +63,11 @@ jobs:
         working-directory: ./stacks/stage
 
       - name: OpenTofu Plan
-        run: tofu plan -input=false -no-color
+        run: tofu plan -input=false -no-color -out=tfplan
         working-directory: ./stacks/stage
 
       - name: OpenTofu Apply
-        run: tofu apply -input=false -no-color -auto-approve
+        run: tofu apply -input=false -no-color -auto-approve tfplan
         working-directory: ./stacks/stage
 
       - name: Authenticate GH CLI
@@ -85,7 +85,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh auth status -h git.ntnu.no
-        
+
       - name: Create PR for Prod
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

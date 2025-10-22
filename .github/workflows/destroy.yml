@@ -1,0 +1,50 @@
+name: Destroy Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select environment to destroy"
+        required: true
+        type: choice
+        options:
+          - dev
+          - stage
+          - prod
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OS_APPLICATION_CREDENTIAL_ID: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
+  OS_APPLICATION_CREDENTIAL_SECRET: ${{ secrets.OS_APPLICATION_CREDENTIAL_SECRET }}
+  OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
+  TF_HTTP_USERNAME: ${{ secrets.TF_HTTP_USERNAME }}
+  TF_HTTP_PASSWORD: ${{ secrets.TF_HTTP_PASSWORD }}
+
+jobs:
+  destroy:
+    runs-on: [ self-hosted ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.10.6
+     
+      - name: Manual approval for PROD destroy
+        if: ${{ github.event.inputs.environment == 'prod' }}
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          minimum-approvals: 1
+          issue-title: "Approval required: Destroy PROD environment"
+          issue-body: "Please approve to destroy **PROD** infrastructure."
+
+      - name: OpenTofu Init
+        run: tofu init -input=false -no-color
+        working-directory: ./stacks/${{ github.event.inputs.environment }}
+
+      - name: OpenTofu Destroy
+        run: tofu destroy -auto-approve -input=false -no-color
+        working-directory: ./stacks/${{ github.event.inputs.environment }}

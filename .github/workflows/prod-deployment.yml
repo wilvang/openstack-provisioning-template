@@ -43,9 +43,9 @@ jobs:
         working-directory: ./stacks/prod
 
       - name: OpenTofu Plan
-        run: tofu plan -input=false -no-color
+        run: tofu plan -input=false -no-color -out=tfplan
         working-directory: ./stacks/prod
 
       - name: OpenTofu Apply
-        run: tofu apply -input=false -no-color -auto-approve
+        run: tofu apply -input=false -no-color -auto-approve tfplan
         working-directory: ./stacks/prod
