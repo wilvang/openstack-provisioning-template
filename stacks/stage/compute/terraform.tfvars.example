@@ -22,3 +22,6 @@ subnet_layout = {
   app = "192.168.80.64/26"
   db  = "192.168.80.128/26"
 }
+
+# Enable load balancer?
+enable_lb = true

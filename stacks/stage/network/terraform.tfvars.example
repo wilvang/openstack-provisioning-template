@@ -1,0 +1,27 @@
+# Terraform backend for remote state storage
+gitlab_backend = "https://gitlab.no/api/v4/projects/<your_project_id>/terraform/state"
+
+# External network info used for floating IPs
+external_network_name = "<your_external_network_name>"
+external_network_id   = "<your_external_network_id>"
+
+# SSH keypair to access VMs
+keypair_name = "<your_ssh_keypair>"
+
+# User and project info for OpenStack authentication
+admin_name = "<admin_for_storage_container>"
+project    = "<your_project_tenant>"
+
+# Network and routing resource names
+network_name = "prod_network"
+router_name  = "prod_router"
+
+# Subnet layout - CIDR blocks for your 3-layer architecture subnets
+subnet_layout = {
+  web = "192.168.80.0/26"
+  app = "192.168.80.64/26"
+  db  = "192.168.80.128/26"
+}
+
+# Enable load balancer?
+enable_lb = true

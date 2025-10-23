@@ -18,9 +18,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-dev:
+  deploy-network:
     runs-on: [ self-hosted ]
-    environment: dev
+    strategy:
+      matrix:
+        env: [dev, stage]
+    environment: ${{ matrix.env }}
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
@@ -29,26 +32,29 @@ jobs:
 
       - name: Create tfvars file
         run: echo "$TFVARS_CONTENT" > terraform.auto.tfvars
-        working-directory: ./stacks/dev
+        working-directory: ./stacks/${{ matrix.env }}/network
         env:
           TFVARS_CONTENT: ${{ secrets.TFVARS_CONTENT }}
 
       - name: OpenTofu Init
         run: tofu init -input=false -no-color
-        working-directory: ./stacks/dev
+        working-directory: ./stacks/${{ matrix.env }}/network
 
       - name: OpenTofu Plan
         run: tofu plan -input=false -no-color -out=tfplan
-        working-directory: ./stacks/dev
+        working-directory: ./stacks/${{ matrix.env }}/network
 
       - name: OpenTofu Apply
         run: tofu apply -input=false -no-color -auto-approve tfplan
-        working-directory: ./stacks/dev
+        working-directory: ./stacks/${{ matrix.env }}/network
   
-  deploy-stage:
-    needs: deploy-dev
+  deploy-compute:
+    needs: deploy-network
     runs-on: [ self-hosted ]
-    environment: stage
+    strategy:
+      matrix:
+        env: [dev, stage]
+    environment: ${{ matrix.env }}
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
@@ -57,22 +63,26 @@ jobs:
 
       - name: Create tfvars file
         run: echo "$TFVARS_CONTENT" > terraform.auto.tfvars
-        working-directory: ./stacks/stage
+        working-directory: ./stacks/${{ matrix.env }}/compute
         env:
           TFVARS_CONTENT: ${{ secrets.TFVARS_CONTENT }}
 
       - name: OpenTofu Init
         run: tofu init -input=false -no-color
-        working-directory: ./stacks/stage
+        working-directory: ./stacks/${{ matrix.env }}/compute
 
       - name: OpenTofu Plan
         run: tofu plan -input=false -no-color -out=tfplan
-        working-directory: ./stacks/stage
+        working-directory: ./stacks/${{ matrix.env }}/compute
 
       - name: OpenTofu Apply
         run: tofu apply -input=false -no-color -auto-approve tfplan
-        working-directory: ./stacks/stage
-
+        working-directory: ./stacks/${{ matrix.env }}/compute
+  
+  create-pr:
+    needs: [deploy-network, deploy-compute]
+    runs-on: [ self-hosted ]
+    steps:
       - name: Authenticate GH CLI
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -89,12 +99,27 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh auth status -h git.ntnu.no
 
-      - name: Create PR for Prod
+      - name: Push branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -B stage-to-prod   # -B resets branch if it exists locally
+
+          git config --global credential.helper store
+          echo "https://x-access-token:${GH_TOKEN}@git.ntnu.no" > ~/.git-credentials
+
+          git fetch origin main
+          git checkout -B stage-to-prod
           git push --force --set-upstream origin stage-to-prod
-          gh pr create --title "Stage → Prod" --body "Promoting stage changes to production" --base main --head stage-to-prod
+
+      - name: Create PR for Prod
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --title "Stage → Prod" \
+            --body "Promoting stage changes to production" \
+            --base main \
+            --head stage-to-prod \
+            --fill

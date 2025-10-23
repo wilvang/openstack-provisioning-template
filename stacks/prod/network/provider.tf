@@ -13,9 +13,9 @@ terraform {
   required_version = ">= 0.14.0"
 
   backend "http" {
-    address        = "https://gitlab.stud.idi.ntnu.no/api/v4/projects/31103/terraform/state/prod"
-    lock_address   = "https://gitlab.stud.idi.ntnu.no/api/v4/projects/31103/terraform/state/prod/lock"
-    unlock_address = "https://gitlab.stud.idi.ntnu.no/api/v4/projects/31103/terraform/state/prod/lock"
+    address        = "https://gitlab.stud.idi.ntnu.no/api/v4/projects/31103/terraform/state/prod-network"
+    lock_address   = "https://gitlab.stud.idi.ntnu.no/api/v4/projects/31103/terraform/state/prod-network/lock"
+    unlock_address = "https://gitlab.stud.idi.ntnu.no/api/v4/projects/31103/terraform/state/prod-network/lock"
     lock_method    = "POST"
     unlock_method  = "DELETE"
     retry_wait_min = 5

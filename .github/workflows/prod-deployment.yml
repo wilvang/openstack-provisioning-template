@@ -24,7 +24,7 @@ jobs:
         uses: hmarr/auto-approve-action@v2
         if: github.event_name == 'workflow_dispatch'
 
-  deploy-prod:
+  deploy-network:
     needs: manual-approval
     runs-on: [ self-hosted ]
     environment: prod
@@ -36,18 +36,47 @@ jobs:
 
       - name: Create tfvars file
         run: echo "$TFVARS_CONTENT" > terraform.auto.tfvars
-        working-directory: ./stacks/prod
+        working-directory: ./stacks/prod/network
         env:
           TFVARS_CONTENT: ${{ secrets.TFVARS_CONTENT }}
 
       - name: OpenTofu Init
         run: tofu init -input=false -no-color
-        working-directory: ./stacks/prod
+        working-directory: ./stacks/prod/network
 
       - name: OpenTofu Plan
         run: tofu plan -input=false -no-color -out=tfplan
-        working-directory: ./stacks/prod
+        working-directory: ./stacks/prod/network
 
       - name: OpenTofu Apply
         run: tofu apply -input=false -no-color -auto-approve tfplan
-        working-directory: ./stacks/prod
+        working-directory: ./stacks/prod/network
+    
+  deploy-compute:
+    needs: deploy-network 
+    runs-on: [ self-hosted ]
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.10.6
+
+      - name: Create tfvars file
+        run: echo "$TFVARS_CONTENT" > terraform.auto.tfvars
+        working-directory: ./stacks/prod/compute
+        env:
+          TFVARS_CONTENT: ${{ secrets.TFVARS_CONTENT }}
+
+      - name: OpenTofu Init
+        run: tofu init -input=false -no-color
+        working-directory: ./stacks/prod/compute
+
+      - name: OpenTofu Plan
+        run: tofu plan -input=false -no-color -out=tfplan
+        working-directory: ./stacks/prod/compute
+
+      - name: OpenTofu Apply
+        run: tofu apply -input=false -no-color -auto-approve tfplan
+        working-directory: ./stacks/prod/compute
+
