@@ -33,7 +33,33 @@ The `bootstrap` folder contains configuration for a self-hosted GitHub Actions r
 
 ---
 
+## GitHub Secrets
+
+The workflows use **environment** and **repository** secrets to securely store credentials and sensitive configuration values. These secrets are **not committed** to the repository.
+
+### Environment Secrets (per environment)
+These secrets are specific to each environment (e.g., `dev`, `stage`, `prod`):
+
+- `TFVARS_CONTENT` – Contains the Terraform variables for the environment.
+
+### Repository Secrets (shared across workflows)
+These secrets are available to all workflows in the repository:
+
+- `OS_APPLICATION_CREDENTIAL_ID` – OpenStack application credential ID.
+- `OS_APPLICATION_CREDENTIAL_SECRET` – OpenStack application credential secret.
+- `OS_AUTH_URL` – OpenStack authentication URL.
+- `TF_HTTP_USERNAME` – Username for the Terraform HTTP backend.
+- `TF_HTTP_PASSWORD` – Password for the Terraform HTTP backend.
+
+### Adding Secrets
+Ensure that these secrets are added in GitHub:
+
+1. Go to **Settings → Secrets → Actions**.
+2. Click **New repository secret** (for repository-wide secrets) or **New environment secret** (for environment-specific secrets).
+3. Assign them to the correct environment if applicable.
+
 ## CI/CD Workflow
+
 ### 1. Automatic Deployment
 1. **DEV**: Triggered on push/merge to `dev` branch. Runs validation deployment.  
 2. **STAGING**: Automatically deployed if DEV succeeds.  
