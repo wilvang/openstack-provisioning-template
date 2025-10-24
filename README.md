@@ -4,7 +4,10 @@
 
 This project provides a modular Terraform codebase to deploy and manage OpenStack infrastructure components. It is designed for flexibility, reusability, and environment-specific deployments via stack-level orchestration.
 
-The infrastructure includes:
+The `bootstrap` folder contains configuration for a self-hosted GitHub Actions runner, allowing CI/CD workflows to run reliably on a dedicated instance. The CI/CD workflows automate deployment to **DEV** and **STAGING** environments, while deployment to **PROD** requires **manual approval**. Manual destruction of any environment is also supported.
+
+
+#### The infrastructure includes:
 
 - Networking (networks, subnets, security groups)
 - Compute resources (virtual machines with floating IPs)
@@ -30,8 +33,33 @@ The infrastructure includes:
 
 ---
 
+## CI/CD Workflow
+### 1. Automatic Deployment
+1. **DEV**: Triggered on push/merge to `dev` branch. Runs validation deployment.  
+2. **STAGING**: Automatically deployed if DEV succeeds.  
+3. **PR to MAIN**: Created automatically after STAGING deployment.
 
-## Setup and Partitioning of Infrastructure
+### 2. Production Deployment
+- Triggered when PR is merged into `main`.  
+- **Manual approval required** before deploying PROD.
+
+### 3. Destruction Workflow
+- Manually triggered via GitHub Actions.  
+- Allows destruction of **DEV**, **STAGING**, or **PROD** environments.
+
+---
+
+## Environment & Stacks
+
+| Environment | Stacks       | Notes                          |
+|------------|-------------|--------------------------------|
+| DEV        | network, compute | Automatic deployment          |
+| STAGING    | network, compute  | After DEV success             |
+| PROD       | network, compute  | Manual approval required      |
+
+---
+
+## Local Setup and Partitioning of Infrastructure
 This section describes how to set up and partition the infrastructure for this project.
 
 ### Step 1: Install OpenTofu and OpenStack CLI
@@ -67,7 +95,7 @@ The Terraform configuration uses a variables file to customize your infrastructu
 1) Navigate to the production stack directory:
 
 ```bash
-cd stacks/prod
+cd stacks/prod/<component>
 ```
 
 2) Rename the example variables file to the actual variables file:
