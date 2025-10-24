@@ -39,6 +39,6 @@ provider "openstack" {}
 data "terraform_remote_state" "network" {
   backend = "http"
   config = {
-    address  = "https://gitlab.stud.idi.ntnu.no/api/v4/projects/31103/terraform/state/stage-network"
+    address = "https://gitlab.stud.idi.ntnu.no/api/v4/projects/31103/terraform/state/stage-network"
   }
 }
