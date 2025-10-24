@@ -4,13 +4,6 @@ permissions:
   contents: read
   actions: read
 
-env:
-  OS_APPLICATION_CREDENTIAL_ID: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
-  OS_APPLICATION_CREDENTIAL_SECRET: ${{ secrets.OS_APPLICATION_CREDENTIAL_SECRET }}
-  OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
-  TF_HTTP_USERNAME: ${{ secrets.TF_HTTP_USERNAME }}
-  TF_HTTP_PASSWORD: ${{ secrets.TF_HTTP_PASSWORD }}
-
 on:
   push:
     branches: [ main ]
@@ -23,60 +16,19 @@ jobs:
       - name: Wait for manual approval
         uses: hmarr/auto-approve-action@v2
         if: github.event_name == 'workflow_dispatch'
-
-  deploy-network:
+        
+  prod-network:
     needs: manual-approval
-    runs-on: [ self-hosted ]
-    environment: prod
-    steps:
-      - uses: actions/checkout@v4
-      - uses: opentofu/setup-opentofu@v1
-        with:
-          tofu_version: 1.10.6
-
-      - name: Create tfvars file
-        run: echo "$TFVARS_CONTENT" > terraform.auto.tfvars
-        working-directory: ./stacks/prod/network
-        env:
-          TFVARS_CONTENT: ${{ secrets.TFVARS_CONTENT }}
-
-      - name: OpenTofu Init
-        run: tofu init -input=false -no-color
-        working-directory: ./stacks/prod/network
-
-      - name: OpenTofu Plan
-        run: tofu plan -input=false -no-color -out=tfplan
-        working-directory: ./stacks/prod/network
-
-      - name: OpenTofu Apply
-        run: tofu apply -input=false -no-color -auto-approve tfplan
-        working-directory: ./stacks/prod/network
-    
-  deploy-compute:
-    needs: deploy-network 
-    runs-on: [ self-hosted ]
-    environment: prod
-    steps:
-      - uses: actions/checkout@v4
-      - uses: opentofu/setup-opentofu@v1
-        with:
-          tofu_version: 1.10.6
-
-      - name: Create tfvars file
-        run: echo "$TFVARS_CONTENT" > terraform.auto.tfvars
-        working-directory: ./stacks/prod/compute
-        env:
-          TFVARS_CONTENT: ${{ secrets.TFVARS_CONTENT }}
-
-      - name: OpenTofu Init
-        run: tofu init -input=false -no-color
-        working-directory: ./stacks/prod/compute
-
-      - name: OpenTofu Plan
-        run: tofu plan -input=false -no-color -out=tfplan
-        working-directory: ./stacks/prod/compute
-
-      - name: OpenTofu Apply
-        run: tofu apply -input=false -no-color -auto-approve tfplan
-        working-directory: ./stacks/prod/compute
-
+    uses: ./.github/workflows/component-deployment.yml
+    with:
+      env: prod
+      component: network
+    secrets: inherit
+  
+  prod-compute:
+    needs: prod-network
+    uses: ./.github/workflows/component-deployment.yml
+    with:
+      env: prod
+      component: compute
+    secrets: inherit

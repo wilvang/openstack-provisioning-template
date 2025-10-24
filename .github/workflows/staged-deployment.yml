@@ -5,82 +5,45 @@ permissions:
   pull-requests: write
   actions: read
 
-env:
-  OS_APPLICATION_CREDENTIAL_ID: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
-  OS_APPLICATION_CREDENTIAL_SECRET: ${{ secrets.OS_APPLICATION_CREDENTIAL_SECRET }}
-  OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
-  TF_HTTP_USERNAME: ${{ secrets.TF_HTTP_USERNAME }}
-  TF_HTTP_PASSWORD: ${{ secrets.TF_HTTP_PASSWORD }}
-
 on:
   push:
     branches: [ dev ]
   workflow_dispatch:
 
 jobs:
-  deploy-network:
-    runs-on: [ self-hosted ]
-    strategy:
-      matrix:
-        env: [dev, stage]
-    environment: ${{ matrix.env }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: opentofu/setup-opentofu@v1
-        with:
-          tofu_version: 1.10.6
-
-      - name: Create tfvars file
-        run: echo "$TFVARS_CONTENT" > terraform.auto.tfvars
-        working-directory: ./stacks/${{ matrix.env }}/network
-        env:
-          TFVARS_CONTENT: ${{ secrets.TFVARS_CONTENT }}
-
-      - name: OpenTofu Init
-        run: tofu init -input=false -no-color
-        working-directory: ./stacks/${{ matrix.env }}/network
-
-      - name: OpenTofu Plan
-        run: tofu plan -input=false -no-color -out=tfplan
-        working-directory: ./stacks/${{ matrix.env }}/network
-
-      - name: OpenTofu Apply
-        run: tofu apply -input=false -no-color -auto-approve tfplan
-        working-directory: ./stacks/${{ matrix.env }}/network
+  dev-network:
+    uses: ./.github/workflows/component-deployment.yml
+    with:
+      env: dev
+      component: network
+    secrets: inherit
   
-  deploy-compute:
-    needs: deploy-network
-    runs-on: [ self-hosted ]
-    strategy:
-      matrix:
-        env: [dev, stage]
-    environment: ${{ matrix.env }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: opentofu/setup-opentofu@v1
-        with:
-          tofu_version: 1.10.6
-
-      - name: Create tfvars file
-        run: echo "$TFVARS_CONTENT" > terraform.auto.tfvars
-        working-directory: ./stacks/${{ matrix.env }}/compute
-        env:
-          TFVARS_CONTENT: ${{ secrets.TFVARS_CONTENT }}
-
-      - name: OpenTofu Init
-        run: tofu init -input=false -no-color
-        working-directory: ./stacks/${{ matrix.env }}/compute
-
-      - name: OpenTofu Plan
-        run: tofu plan -input=false -no-color -out=tfplan
-        working-directory: ./stacks/${{ matrix.env }}/compute
-
-      - name: OpenTofu Apply
-        run: tofu apply -input=false -no-color -auto-approve tfplan
-        working-directory: ./stacks/${{ matrix.env }}/compute
+  dev-compute:
+    needs: dev-network
+    uses: ./.github/workflows/component-deployment.yml
+    with:
+      env: dev
+      component: compute
+    secrets: inherit
+  
+  stage-network:
+    needs: dev-compute
+    uses: ./.github/workflows/component-deployment.yml
+    with:
+      env: stage
+      component: network
+    secrets: inherit
+  
+  stage-compute:
+    needs: stage-network
+    uses: ./.github/workflows/component-deployment.yml
+    with:
+      env: stage
+      component: compute
+    secrets: inherit
   
   create-pr:
-    needs: [deploy-network, deploy-compute]
+    needs: stage-compute
     runs-on: [ self-hosted ]
     steps:
       - name: Authenticate GH CLI

@@ -1,0 +1,53 @@
+name: Deploy Component
+
+env:
+  OS_APPLICATION_CREDENTIAL_ID: ${{ secrets.OS_APPLICATION_CREDENTIAL_ID }}
+  OS_APPLICATION_CREDENTIAL_SECRET: ${{ secrets.OS_APPLICATION_CREDENTIAL_SECRET }}
+  OS_AUTH_URL: ${{ secrets.OS_AUTH_URL }}
+  TF_HTTP_USERNAME: ${{ secrets.TF_HTTP_USERNAME }}
+  TF_HTTP_PASSWORD: ${{ secrets.TF_HTTP_PASSWORD }}
+
+on:
+  workflow_call:
+    inputs:
+      env:
+        required: true
+        type: string
+      component:
+        required: true
+        type: string
+    secrets:
+      TFVARS_CONTENT:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: [ self-hosted ]
+    environment: ${{ inputs.env }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.10.6
+
+      - name: Create tfvars
+        run: echo "$TFVARS_CONTENT" > terraform.auto.tfvars
+        working-directory: ./stacks/${{ inputs.env }}/${{ inputs.component }}
+        env:
+          TFVARS_CONTENT: ${{ secrets.TFVARS_CONTENT }}
+
+      - name: Init ${{ inputs.env }}/${{ inputs.component }}
+        run: tofu init -input=false -no-color
+        working-directory: ./stacks/${{ inputs.env }}/${{ inputs.component }}
+
+      - name: Validate ${{ inputs.env }}/${{ inputs.component }}
+        run: tofu validate -no-color
+        working-directory: ./stacks/${{ inputs.env }}/${{ inputs.component }}      
+
+      - name: Plan ${{ inputs.env }}/${{ inputs.component }}
+        run: tofu plan -input=false -no-color -out=tfplan
+        working-directory: ./stacks/${{ inputs.env }}/${{ inputs.component }}  
+
+      - name: Deploy ${{ inputs.env }}/${{ inputs.component }}
+        run: tofu apply -input=false -no-color -auto-approve tfplan
+        working-directory: ./stacks/${{ inputs.env }}/${{ inputs.component }}
